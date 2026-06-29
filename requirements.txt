@@ -1,0 +1,12 @@
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+python-multipart>=0.0.17
+openai>=1.60.0
+chromadb>=0.6.0
+fastembed>=0.8.0
+pydantic>=2.10.0
+pydantic-settings>=2.7.0
+python-docx>=1.1.0
+PyMuPDF>=1.25.0
+aiofiles>=24.1.0
+python-frontmatter>=1.1.0

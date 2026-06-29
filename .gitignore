@@ -1,0 +1,20 @@
+# 环境配置
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+.venv/
+venv/
+
+# 数据
+uploads/*
+!uploads/.gitkeep
+chroma_data/
+*.db
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>企业知识库AI助手</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- 顶栏 -->
+    <header id="header">
+      <div class="header-left">
+        <h1>📚 企业知识库AI助手</h1>
+        <span class="badge">DeepSeek RAG</span>
+      </div>
+      <div class="header-right">
+        <button id="btn-upload" title="上传文档">📄 上传文档</button>
+        <button id="btn-new-chat" title="新建会话">💬 新对话</button>
+        <button id="btn-clear-memory" title="清除记忆">🧹 清除记忆</button>
+      </div>
+    </header>
+
+    <!-- 主体 -->
+    <div id="main">
+      <!-- 侧边栏 -->
+      <aside id="sidebar">
+        <div class="sidebar-section">
+          <h3>📋 已上传文档</h3>
+          <div id="doc-list">
+            <p class="empty-hint">暂无文档，点击上方按钮上传</p>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <h3>🧠 记忆状态</h3>
+          <div id="memory-info">
+            <p class="small">会话轮数: <span id="mem-turns">0</span></p>
+            <p class="small">长期记忆: <span id="mem-long">0</span> 条</p>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <h3>💬 历史会话</h3>
+          <div id="session-list">
+            <p class="empty-hint">暂无历史会话</p>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <p class="small" style="word-break:break-all">当前: <span id="session-id-display">—</span></p>
+        </div>
+      </aside>
+
+      <!-- 右键菜单 -->
+      <div id="session-context-menu" class="context-menu">
+        <div class="context-menu-item danger" id="ctx-delete-session">🗑️ 删除会话</div>
+      </div>
+
+      <!-- 聊天区域 -->
+      <section id="chat-area">
+        <div id="chat-messages">
+          <div class="message assistant">
+            <div class="avatar">🤖</div>
+            <div class="bubble">
+              <p>👋 你好！我是企业知识库智能助手。</p>
+              <p>请先上传文档（PDF、DOCX、TXT、Markdown），然后向我提问。</p>
+              <p>我会基于文档内容为你提供准确、有据可查的回答。</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="chat-input-area">
+          <textarea id="chat-input" placeholder="输入你的问题..." rows="1"></textarea>
+          <button id="btn-send" title="发送 (Enter)">▶</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- 上传模态框 -->
+    <div id="upload-modal" class="modal hidden">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>📤 上传文档</h2>
+          <button class="btn-close" id="btn-close-modal">✕</button>
+        </div>
+        <div id="upload-dropzone">
+          <div class="dropzone-content">
+            <p class="dropzone-icon">📁</p>
+            <p>拖拽文件到此处，或 <strong>点击选择</strong></p>
+            <p class="small">支持 PDF · DOCX · TXT · Markdown（最大 50MB）</p>
+            <input type="file" id="file-input" hidden accept=".pdf,.docx,.txt,.md">
+          </div>
+        </div>
+        <div id="upload-progress" class="hidden">
+          <p id="upload-status"></p>
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js?v=3"></script>
+  <script src="/js/upload.js?v=3"></script>
+  <script src="/js/chat.js?v=3"></script>
+</body>
+</html>
