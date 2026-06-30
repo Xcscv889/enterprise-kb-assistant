@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     # ── DeepSeek API ──
     deepseek_api_key: str = ""  # 请通过 .env 文件或环境变量设置
-    deepseek_base_url: str = "https://api.deepseek.com"
+    deepseek_base_url: str = ""
     deepseek_model: str = "deepseek-chat"
     deepseek_temperature: float = 0.1
     deepseek_max_tokens: int = 2048

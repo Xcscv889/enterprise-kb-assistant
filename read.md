@@ -17,7 +17,9 @@
 
 ---
 
-## 启动命令
+## 快速开始
+
+### 本地开发
 
 ```bash
 # 1. 安装依赖
@@ -33,7 +35,104 @@ python main.py
 # http://localhost:8000
 ```
 
-启动后访问 **http://localhost:8000** 即可使用 Web 界面。
+### 🐳 Docker 部署（推荐生产环境）
+
+```bash
+# 1. 配置环境变量
+cp .env.example .env
+# 编辑 .env，填入真实的 DEEPSEEK_API_KEY
+
+# 2. 构建并启动
+docker compose up -d --build
+
+# 3. 查看日志确认启动成功
+docker compose logs -f
+
+# 4. 浏览器打开
+# http://localhost:8000
+```
+
+首次构建镜像时会自动下载嵌入模型（约 100MB），后续启动无需等待。
+
+---
+
+## ☁️ 云服务器部署
+
+### 服务器配置要求
+
+| 项目 | 最低配置 | 推荐配置 |
+|------|----------|----------|
+| CPU | 2 核 | 4 核 |
+| 内存 | 4 GB | 8 GB |
+| 磁盘 | 20 GB | 40 GB SSD |
+| 系统 | Ubuntu 22.04 / Debian 12 | Ubuntu 22.04 |
+| 带宽 | 1 Mbps | 5 Mbps |
+
+> 嵌入模型在内存中约占用 200MB，ChromaDB 查询需要额外内存。4GB 是底线。
+
+### 部署步骤
+
+```bash
+# 1. SSH 连接云服务器
+ssh root@<服务器公网IP>
+
+# 2. 安装 Docker（如未安装）
+curl -fsSL https://get.docker.com | bash
+
+# 3. 上传项目代码
+#    方式A：git clone <仓库地址>
+#    方式B：scp -r 企业知识库AI助手/ root@<IP>:/opt/
+
+cd /opt/企业知识库AI助手
+
+# 4. 配置 API Key
+cp .env.example .env
+vim .env   # 填入 DEEPSEEK_API_KEY=sk-xxxx
+
+# 5. 构建并启动容器
+docker compose up -d --build
+
+# 6. 确认服务运行正常
+docker compose logs -f
+
+# 7. 开放防火墙端口
+#    阿里云：安全组 → 入方向 → 允许 TCP 8000
+#    腾讯云：防火墙 → 添加规则 → TCP 8000
+#    AWS：Security Group → Inbound → TCP 8000
+
+# 8. 浏览器访问
+# http://<服务器公网IP>:8000
+```
+
+### 常用运维命令
+
+```bash
+# 查看运行状态
+docker compose ps
+
+# 查看实时日志
+docker compose logs -f
+
+# 重启服务
+docker compose restart
+
+# 停止服务
+docker compose down
+
+# 更新代码后重新部署
+git pull
+docker compose up -d --build
+
+# 数据备份（chroma_data 和 uploads 目录已在宿主机持久化）
+tar -czf backup-$(date +%Y%m%d).tar.gz chroma_data/ uploads/
+```
+
+### 数据持久化说明
+
+- `chroma_data/`：向量数据库文件，**重启不丢失**
+- `uploads/`：上传的原始文档，**重启不丢失**
+- 对话记忆：存储在 ChromaDB 中，随 chroma_data 持久化
+- 以上目录通过 Docker volume bind mount 挂载到宿主机，与容器生命周期解耦
 
 ---
 
@@ -83,6 +182,9 @@ python main.py
 ├── main.py                 # FastAPI 应用入口
 ├── config.py               # 集中配置（.env 加载）
 ├── requirements.txt        # Python 依赖
+├── Dockerfile              # Docker 镜像构建
+├── docker-compose.yml      # Docker 编排配置
+├── .dockerignore           # Docker 构建排除
 ├── app/
 │   ├── api/                # API 路由
 │   │   ├── chat.py         # 聊天接口（SSE 流式）
