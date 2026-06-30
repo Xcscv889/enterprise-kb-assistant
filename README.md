@@ -1,5 +1,7 @@
 # 企业知识库AI助手
 
+[English](README_EN.md)
+
 基于 **RAG（检索增强生成）** 架构的智能企业文档问答系统。上传企业文档（PDF/Word/TXT/Markdown），系统自动解析、向量化存储，支持自然语言提问，结合 DeepSeek 大模型生成精准回答。
 
 ---

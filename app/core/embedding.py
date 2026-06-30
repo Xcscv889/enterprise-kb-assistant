@@ -1,9 +1,12 @@
 """嵌入模型服务 — 基于 fastembed (ONNX Runtime)，无需 PyTorch"""
 
+import logging
 import numpy as np
 from fastembed import TextEmbedding
 
 from config import settings
+
+logger = logging.getLogger("kb-assistant.embedding")
 
 
 class EmbeddingService:
@@ -12,7 +15,7 @@ class EmbeddingService:
     def __init__(self, model_name: str = None, device: str = None):
         model_name = model_name or settings.embedding_model_name
 
-        print(f"    加载模型: {model_name} (ONNX Runtime)")
+        logger.info("加载模型: %s (ONNX Runtime)", model_name)
         self.model = TextEmbedding(
             model_name=model_name,
             cache_dir=None,
@@ -21,7 +24,7 @@ class EmbeddingService:
         sample = list(self.model.embed(["test"]))[0]
         self.dim = len(sample)
         self.model_name = model_name
-        print(f"    模型已就绪 (维度: {self.dim})")
+        logger.info("模型已就绪 (维度: %d)", self.dim)
 
     def encode(self, texts: list[str]) -> np.ndarray:
         """批量编码文本为归一化嵌入向量"""

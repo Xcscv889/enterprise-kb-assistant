@@ -1,6 +1,7 @@
 """企业知识库AI助手 — FastAPI 应用入口"""
 
 import asyncio
+import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -10,6 +11,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
 
+# ── 日志配置 ──
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)-7s | %(message)s",
+    datefmt="%H:%M:%S",
+)
+logger = logging.getLogger("kb-assistant")
+
 # 确保数据目录存在
 Path("./uploads").mkdir(parents=True, exist_ok=True)
 Path(settings.chroma_persist_dir).mkdir(parents=True, exist_ok=True)
@@ -18,31 +27,31 @@ Path(settings.chroma_persist_dir).mkdir(parents=True, exist_ok=True)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期：启动时加载模型和组件，关闭时清理资源"""
-    print("[启动] 正在加载嵌入模型...")
+    logger.info("正在加载嵌入模型...")
     from app.core.embedding import EmbeddingService
     app.state.embedding_service = EmbeddingService(
         model_name=settings.embedding_model_name,
         device=settings.embedding_device,
     )
-    print(f"[启动] 嵌入模型已加载 (维度: {app.state.embedding_service.dim})")
+    logger.info("嵌入模型已加载 (维度: %d)", app.state.embedding_service.dim)
 
-    print("[启动] 正在连接 ChromaDB...")
+    logger.info("正在连接 ChromaDB...")
     from app.rag.store import VectorStore
     app.state.vector_store = VectorStore(
         persist_dir=settings.chroma_persist_dir,
         embedding_service=app.state.embedding_service,
     )
-    print("[启动] ChromaDB 已连接")
+    logger.info("ChromaDB 已连接")
 
-    print("[启动] 正在初始化 LLM 客户端...")
+    logger.info("正在初始化 LLM 客户端...")
     from app.core.llm_client import LLMClient
     app.state.llm_client = LLMClient()
 
-    print("[启动] 正在初始化解析器...")
+    logger.info("正在初始化解析器...")
     from app.parsing.parser_registry import create_parser_registry
     app.state.parser_registry = create_parser_registry()
 
-    print("[启动] 正在初始化记忆模块...")
+    logger.info("正在初始化记忆模块...")
     from app.memory.conversation import ConversationMemory
     from app.memory.long_term import LongTermMemory
     app.state.conversation_memory = ConversationMemory()
@@ -60,12 +69,12 @@ async def lifespan(app: FastAPI):
 
     cleanup_task = asyncio.create_task(cleanup_loop())
 
-    print("[启动] 企业知识库AI助手已就绪!")
+    logger.info("企业知识库AI助手已就绪!")
     yield
 
     # 关闭
     cleanup_task.cancel()
-    print("[关闭] 应用已停止")
+    logger.info("应用已停止")
 
 
 app = FastAPI(
@@ -82,6 +91,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# API Key 鉴权中间件
+from app.api.auth import APIKeyMiddleware
+app.add_middleware(APIKeyMiddleware)
 
 # ── API 路由 ──
 from app.api.health import router as health_router

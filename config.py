@@ -4,6 +4,9 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+    # ── 应用鉴权 ──
+    app_api_key: str = ""  # 为空则跳过 API Key 校验（本地开发）；设置后所有 /api/* 请求需带 X-API-Key 头
+
     # ── DeepSeek API ──
     deepseek_api_key: str = ""  # 请通过 .env 文件或环境变量设置
     deepseek_base_url: str = ""
